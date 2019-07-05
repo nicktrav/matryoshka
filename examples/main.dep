@@ -1,0 +1,16 @@
+load("foo.dep", "foo")
+load("bar.dep", "bar")
+load("baz.dep", "baz")
+
+# Root node
+
+root = dep(
+  name = 'all',
+  requires = [foo, bar, baz],
+  met = [
+    shell("echo 'Checking if all should be installed'"),
+  ],
+  meet = [
+    shell("echo 'I installed all'"),
+  ],
+)

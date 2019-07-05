@@ -1,0 +1,10 @@
+# baz.dep
+
+baz = dep(
+  name = 'baz',
+  requires = [],
+  met = [
+  ],
+  meet = [
+  ],
+)

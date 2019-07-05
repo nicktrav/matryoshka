@@ -1,0 +1,14 @@
+# Root node
+
+load("foo.dep", "foo")
+load("bar.dep", "bar")
+load("baz.dep", "baz")
+
+all = dep(
+  name = 'all',
+  requires = [foo, bar, baz],
+  met = [
+  ],
+  meet = [
+  ],
+)

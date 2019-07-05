@@ -1,0 +1,12 @@
+# bar.dep
+
+bar = dep(
+  name = "bar",
+  requires = [],
+  met = [
+    shell("echo 'Checking if bar should be installed'"),
+  ],
+  meet = [
+    shell("echo 'I installed bar'"),
+  ],
+)

@@ -1,0 +1,27 @@
+# foo.dep
+
+load("builtins.dep", "os")
+
+foo_macos = dep(
+  name = 'foo-mac',
+  requires = [],
+  met = [
+    shell("echo 'Checking if foo-mac should be installed'"),
+  ],
+  meet = [
+    shell("echo 'I installed foo-mac'"),
+  ],
+)
+
+foo_linux = dep(
+  name = 'foo-linux',
+  requires = [],
+  met = [
+    shell("echo 'Checking if foo-linux should be installed'"),
+  ],
+  meet = [
+    shell("echo 'I tried to installed foo-linux';"),
+  ],
+)
+
+foo = foo_linux if os() == "linux" else foo_macos

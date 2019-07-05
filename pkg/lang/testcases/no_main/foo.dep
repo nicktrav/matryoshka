@@ -1,0 +1,12 @@
+# foo.dep
+
+foo = dep(
+  name = 'foo',
+  requires = [],
+  met = [
+    shell("echo 'Checking if foo should be installed'"),
+  ],
+  meet = [
+    shell("echo 'I installed foo'"),
+  ],
+)
