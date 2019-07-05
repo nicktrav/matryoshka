@@ -1,0 +1,22 @@
+# Root node
+
+foo = dep(
+  name = 'foo',
+  requires = [],
+  met = [
+  ],
+  meet = [
+  ],
+)
+
+all = dep(
+  name = 'all',
+  requires = [foo],
+  met = [
+    shell("echo 'Hello, world!'")
+  ],
+  meet = [
+    shell("echo 'Hello, indeed!'"),
+    shell("echo 'Hello, again!'"),
+  ],
+)

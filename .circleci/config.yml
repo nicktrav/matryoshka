@@ -1,0 +1,10 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.12.6
+
+    steps:
+      - checkout
+      - run: go test -race -v ./...
+      - run: go vet -v ./...

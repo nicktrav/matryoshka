@@ -1,0 +1,15 @@
+# baz.dep
+
+load("foo.dep", "foo")
+load("bar.dep", "bar")
+
+baz = dep(
+  name = "baz",
+  requires = [foo, bar],
+  met = [
+    shell("echo 'Checking if baz should be installed'"),
+  ],
+  meet = [
+    shell("echo 'I installed baz'"),
+  ],
+)

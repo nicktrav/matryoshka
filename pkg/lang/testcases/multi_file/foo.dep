@@ -1,0 +1,21 @@
+# foo.dep
+
+load("baz.dep", "baz")
+
+bam = dep(
+  name = 'bam',
+  requires = [baz],
+  met = [
+  ],
+  meet = [
+  ],
+)
+
+foo = dep(
+  name = 'foo',
+  requires = [bam],
+  met = [
+  ],
+  meet = [
+  ],
+)
