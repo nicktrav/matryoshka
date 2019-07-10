@@ -10,22 +10,22 @@ import (
 func TestString(t *testing.T) {
 	cmd := ShellCmd{"foo"}
 
-	expected := "<dep.ShellCmd \"foo\">"
-	actual := cmd.String()
+	wanted := "<dep.ShellCmd \"foo\">"
+	got := cmd.String()
 
-	if expected != actual {
-		t.Errorf("wanted %s, got %s", expected, actual)
+	if wanted != got {
+		t.Errorf("wanted %s, got %s", wanted, got)
 	}
 }
 
 func TestType(t *testing.T) {
 	cmd := ShellCmd{"foo"}
 
-	expected := "dep.ShellCmd"
-	actual := cmd.Type()
+	wanted := "dep.ShellCmd"
+	got := cmd.Type()
 
-	if expected != actual {
-		t.Errorf("wanted %s, got %s", expected, actual)
+	if wanted != got {
+		t.Errorf("wanted %s, got %s", wanted, got)
 	}
 }
 
@@ -33,7 +33,7 @@ func TestTruth(t *testing.T) {
 	cmd := ShellCmd{"foo"}
 
 	if !cmd.Truth() {
-		t.Error("Truth did not return true")
+		t.Error("wanted cmd.Truth to return true; got false")
 	}
 }
 
@@ -43,11 +43,11 @@ func TestHash(t *testing.T) {
 	_, err := cmd.Hash()
 
 	if err == nil {
-		t.Fatal("expected Hash to return an error")
+		t.Fatal("wanted Hash to return an error")
 	}
 
-	if !strings.Contains(err.Error(), "unhashable type") {
-		t.Errorf("expected error to contain 'unhashable type")
+	if !strings.HasPrefix(err.Error(), "unhashable type") {
+		t.Errorf("wanted error to contain 'unhashable type")
 	}
 }
 
@@ -55,8 +55,8 @@ func TestShellCmd(t *testing.T) {
 	thread := &starlark.Thread{}
 	builtin := &starlark.Builtin{}
 
-	expectedCommand := "foo"
-	input := []starlark.Value{starlark.String(expectedCommand)}
+	want := "foo"
+	input := []starlark.Value{starlark.String(want)}
 	value, err := FnShell(thread, builtin, input, []starlark.Tuple{})
 
 	if err != nil {
@@ -68,7 +68,8 @@ func TestShellCmd(t *testing.T) {
 		t.Errorf("returned value %s was not a ShellCmd", value)
 	}
 
-	if expectedCommand != cmd.Command {
-		t.Errorf("wanted %s, got %s", expectedCommand, cmd.Command)
+	got := cmd.Command
+	if want != got {
+		t.Errorf("wanted %s, got %s", want, got)
 	}
 }

@@ -1,7 +1,6 @@
 package lang
 
 import (
-	"errors"
 	"fmt"
 
 	"go.starlark.net/starlark"
@@ -52,7 +51,7 @@ func FnShell(t *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwar
 	value := args.Index(0)
 	strValue, ok := value.(starlark.String)
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("expected %v to be ok type String", value))
+		return nil, fmt.Errorf("expected %v to be ok type String", value)
 	}
 
 	shell := ShellCmd{
