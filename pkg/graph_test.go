@@ -32,7 +32,7 @@ func TestDependencyGraph_Construct(t *testing.T) {
 	}
 
 	if len(fooDep.Dependencies) != 0 {
-		t.Errorf("expected no deps for foo; got %d", len(fooDep.Dependencies))
+		t.Errorf("wanted no deps for foo; got %d", len(fooDep.Dependencies))
 	}
 
 	// bar is well formed
@@ -44,31 +44,31 @@ func TestDependencyGraph_Construct(t *testing.T) {
 	}
 
 	if len(barDep.Dependencies) != 1 {
-		t.Errorf("expected requirements slice to be of size 1; got %d", len(barDep.Dependencies))
+		t.Errorf("wanted requirements slice to be of size 1; got %d", len(barDep.Dependencies))
 	}
 
 	if barDep.Dependencies[0] != fooDep {
-		t.Errorf("expected bar's only dep to be foo; was %v", barDep.Dependencies[0])
+		t.Errorf("wanted bar's only dep to be foo; got %v", barDep.Dependencies[0])
 	}
 
 	// converter map should contain only the deps foo and bar
 
 	if len(g.depMap) != 2 {
-		t.Errorf("expected map to be of size 2; was %d", len(g.depMap))
+		t.Errorf("wanted map to be of size 2; got %d", len(g.depMap))
 	}
 
 	assertMapContainsDep(t, g, "foo", fooDep)
 	assertMapContainsDep(t, g, "bar", barDep)
 }
 
-func assertMapContainsDep(t *testing.T, g *DependencyGraph, depName string, expectedDep *Dependency) {
+func assertMapContainsDep(t *testing.T, g *DependencyGraph, depName string, wantedDep *Dependency) {
 	dep, found := g.depMap[depName]
 
 	if !found {
-		t.Errorf("expected map to contain key '%s'", depName)
+		t.Errorf("wanted map to contain key '%s'; got %+v", depName, g.depMap)
 	}
 
-	if dep != expectedDep {
-		t.Errorf("expected '%s' key to be dep %s; was %v", depName, expectedDep.Name, dep)
+	if dep != wantedDep {
+		t.Errorf("wanted '%s' key to be dep %s; was %+v", depName, wantedDep.Name, dep)
 	}
 }

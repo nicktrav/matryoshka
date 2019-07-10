@@ -1,7 +1,6 @@
 package lang
 
 import (
-	"errors"
 	"fmt"
 
 	"go.starlark.net/starlark"
@@ -155,7 +154,7 @@ func FnDep(t *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs
 func asString(value starlark.Value) (string, error) {
 	str, ok := value.(starlark.String)
 	if !ok {
-		return "", errors.New(fmt.Sprintf("value %v is not a string", value))
+		return "", fmt.Errorf("value %v is not a string", value)
 	}
 	return string(str), nil
 }
@@ -165,7 +164,7 @@ func asString(value starlark.Value) (string, error) {
 func asRequirementsList(value starlark.Value) ([]*Dep, error) {
 	list, ok := value.(*starlark.List)
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("value %v is not a list", value))
+		return nil, fmt.Errorf("value %v is not a list", value)
 	}
 
 	var deps []*Dep
@@ -177,7 +176,7 @@ func asRequirementsList(value starlark.Value) ([]*Dep, error) {
 	for iter.Next(&v) {
 		dep, ok := v.(*Dep)
 		if !ok {
-			return nil, errors.New(fmt.Sprintf("value %v is not a dep", v))
+			return nil, fmt.Errorf("value %v is not a dep", v)
 		}
 		deps = append(deps, dep)
 	}
@@ -190,7 +189,7 @@ func asRequirementsList(value starlark.Value) ([]*Dep, error) {
 func asCommandList(value starlark.Value) ([]*ShellCmd, error) {
 	list, ok := value.(*starlark.List)
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("value %v is not a list", value))
+		return nil, fmt.Errorf("value %+v is not a list", value)
 	}
 
 	var commands []*ShellCmd
@@ -202,7 +201,7 @@ func asCommandList(value starlark.Value) ([]*ShellCmd, error) {
 	for iter.Next(&v) {
 		command, ok := v.(ShellCmd)
 		if !ok {
-			return nil, errors.New(fmt.Sprintf("list item %v is not a command", v))
+			return nil, fmt.Errorf("list item %+v is not a command", v)
 		}
 		commands = append(commands, &command)
 	}

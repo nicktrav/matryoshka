@@ -17,11 +17,11 @@ func TestParser_NoMain(t *testing.T) {
 
 	err := parser.Run()
 	if err == nil {
-		t.Fatalf("expected an erorr")
+		t.Fatalf("wanted an erorr")
 	}
 
 	if err.Error() != "main.dep not found" {
-		t.Errorf("expected error 'main.dep not found'")
+		t.Errorf("wanted error 'main.dep not found'")
 	}
 }
 
@@ -35,12 +35,12 @@ func TestParser_SimpleMain(t *testing.T) {
 
 	modules := parser.Modules()
 	if len(modules) != 1 {
-		t.Errorf("expected 1 file , got %d", len(modules))
+		t.Errorf("wanted 1 file , got %d", len(modules))
 	}
 
 	main := modules[0]
 	if len(main.Keys()) != 2 {
-		t.Errorf("expected 2 variables in main.dep, got %d", len(main.Keys()))
+		t.Errorf("wanted 2 variables in main.dep, got %d", len(main.Keys()))
 	}
 
 	// Check the "all" Dep
@@ -56,68 +56,68 @@ func TestParser_SimpleMain(t *testing.T) {
 	}
 
 	if dep.Name != "all" {
-		t.Errorf("Name of Dep 'all' was not 'all'; was %s", dep.Name)
+		t.Errorf("name of Dep 'all' was not 'all'; got %s", dep.Name)
 	}
 
 	if len(dep.Requirements) != 1 {
-		t.Errorf("Expected Dep 'all' to have 1 requirement; had %d", len(dep.Requirements))
+		t.Errorf("wanted Dep 'all' to have 1 requirement; got %d", len(dep.Requirements))
 	}
 
 	if dep.Requirements[0].Name != "foo" {
-		t.Errorf("Expected Dep 'all' to have requirement 'foo'; had '%s'", dep.Requirements[0])
+		t.Errorf("wanted Dep 'all' to have requirement 'foo'; got '%s'", dep.Requirements[0])
 	}
 
 	if len(dep.MetCommands) != 1 {
-		t.Errorf("Expected Dep 'all' to have 1 'met' command; had %d", len(dep.MetCommands))
+		t.Errorf("wanted Dep 'all' to have 1 'met' command; got %d", len(dep.MetCommands))
 	}
 
-	expected := "echo 'Hello, world!'"
-	actual := dep.MetCommands[0].Command
+	want := "echo 'Hello, world!'"
+	got := dep.MetCommands[0].Command
 	if dep.MetCommands[0].Command != "echo 'Hello, world!'" {
-		t.Errorf("Expected Dep 'all' 'met' command to be '%s'; was '%s'", expected, actual)
+		t.Errorf("wanted Dep 'all' 'met' command to be '%s'; got '%s'", want, got)
 	}
 
 	if len(dep.MeetCommands) != 2 {
-		t.Errorf("Expected Dep 'all' to have 2 'meet' command; had %d", len(dep.MeetCommands))
+		t.Errorf("wanted Dep 'all' to have 2 'meet' command; got %d", len(dep.MeetCommands))
 	}
 
-	expected = "echo 'Hello, indeed!'"
-	actual = dep.MeetCommands[0].Command
-	if expected != actual {
-		t.Errorf("Expected Dep 'all' 'meet' command #1 to be '%s'; was '%s'", expected, actual)
+	want = "echo 'Hello, indeed!'"
+	got = dep.MeetCommands[0].Command
+	if want != got {
+		t.Errorf("wanted Dep 'all' 'meet' command #1 to be '%s'; got '%s'", want, got)
 	}
 
-	expected = "echo 'Hello, again!'"
-	actual = dep.MeetCommands[1].Command
-	if expected != actual {
-		t.Errorf("Expected Dep 'all' 'meet' command #2 to be '%s'; was '%s'", expected, actual)
+	want = "echo 'Hello, again!'"
+	got = dep.MeetCommands[1].Command
+	if want != got {
+		t.Errorf("wanted Dep 'all' 'meet' command #2 to be '%s'; got '%s'", want, got)
 	}
 
 	// Check the "foo" Dep
 
 	foo, ok := main["foo"]
 	if !ok {
-		t.Errorf("main.dep does to have dep 'foo'")
+		t.Errorf("wanted main.dep to have dep 'foo'")
 	}
 
 	dep, ok = foo.(*Dep)
 	if !ok {
-		t.Errorf("'foo' was not a Dep")
+		t.Errorf("wanted 'foo' to be a Dep")
 	}
 	if dep.Name != "foo" {
-		t.Errorf("Name of Dep 'foo' was not 'foo'; was %s", dep.Name)
+		t.Errorf("wanted name of Dep 'foo' to be 'foo'; got %s", dep.Name)
 	}
 
 	if len(dep.Requirements) != 0 {
-		t.Errorf("Expected Dep 'foo' to have 0 requirement; had %d", len(dep.Requirements))
+		t.Errorf("wanted Dep 'foo' to have 0 requirement; got %d", len(dep.Requirements))
 	}
 
 	if len(dep.MetCommands) != 0 {
-		t.Errorf("Expected Dep 'foo' to have 0 'met' command; had %d", len(dep.MetCommands))
+		t.Errorf("wanted Dep 'foo' to have 0 'met' command; got %d", len(dep.MetCommands))
 	}
 
 	if len(dep.MeetCommands) != 0 {
-		t.Errorf("Expected Dep 'foo' to have 0 'meet' command; had %d", len(dep.MeetCommands))
+		t.Errorf("wanted Dep 'foo' to have 0 'meet' command; got %d", len(dep.MeetCommands))
 	}
 }
 
@@ -126,19 +126,19 @@ func TestParser_MultiFile(t *testing.T) {
 
 	err := parser.Run()
 	if err != nil {
-		t.Errorf("did not expect error %s", err)
+		t.Errorf("parser.Run: %s", err)
 	}
 
 	modules := parser.Modules()
 	if len(modules) != 4 {
-		t.Errorf("expected 4 file , got %d", len(modules))
+		t.Errorf("wanted 4 files, got %d", len(modules))
 	}
 
 	depMap := toMap(modules)
-	expectedGlobals := []string{"all", "foo", "bar", "baz", "bam"}
-	for _, expected := range expectedGlobals {
-		if _, contains := depMap[expected]; !contains {
-			t.Errorf("expected module %s in module %v", expectedGlobals, modules)
+	wantedGlobals := []string{"all", "foo", "bar", "baz", "bam"}
+	for _, want := range wantedGlobals {
+		if _, contains := depMap[want]; !contains {
+			t.Errorf("wanted module %s in module %+v", wantedGlobals, modules)
 		}
 	}
 
@@ -146,43 +146,43 @@ func TestParser_MultiFile(t *testing.T) {
 
 	dep := depMap["all"]
 	if !contains("foo", dep.Requirements) {
-		t.Errorf("expected Dep 'all' to require 'foo'")
+		t.Errorf("wanted Dep 'all' to require 'foo'")
 	}
 
 	if !contains("bar", dep.Requirements) {
-		t.Errorf("expected Dep 'all' to require 'bar'")
+		t.Errorf("wanted Dep 'all' to require 'bar'")
 	}
 
 	if !contains("baz", dep.Requirements) {
-		t.Errorf("expected Dep 'all' to require 'baz'")
+		t.Errorf("wanted Dep 'all' to require 'baz'")
 	}
 
 	// foo depends on bam
 
 	dep = depMap["foo"]
 	if !contains("bam", dep.Requirements) {
-		t.Errorf("expected Dep 'foo' to require 'bam'")
+		t.Errorf("wanted Dep 'foo' to require 'bam'")
 	}
 
 	// bar depends on baz
 
 	dep = depMap["bar"]
 	if !contains("baz", dep.Requirements) {
-		t.Errorf("expected Dep 'bar' to require 'baz'")
+		t.Errorf("wanted Dep 'bar' to require 'baz'")
 	}
 
 	// baz depends on nothing
 
 	dep = depMap["baz"]
 	if len(dep.Requirements) != 0 {
-		t.Errorf("expected Dep 'baz' to depend on nothing; got %s", dep.Requirements)
+		t.Errorf("wanted Dep 'baz' to depend on nothing; got %s", dep.Requirements)
 	}
 
 	// bam depends on baz
 
 	dep = depMap["bam"]
 	if !contains("baz", dep.Requirements) {
-		t.Errorf("expected Dep 'bam' to require 'baz'")
+		t.Errorf("wanted Dep 'bam' to require 'baz'")
 	}
 }
 
@@ -202,9 +202,9 @@ func toMap(modules []starlark.StringDict) map[string]*Dep {
 	return depMap
 }
 
-func contains(expected string, requirements []*Dep) bool {
+func contains(want string, requirements []*Dep) bool {
 	for _, req := range requirements {
-		if req.Name == expected {
+		if req.Name == want {
 			return true
 		}
 	}

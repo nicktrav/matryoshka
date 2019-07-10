@@ -16,8 +16,8 @@ func TestShellCommandAction_Run_Success(t *testing.T) {
 }
 
 func TestShellCommandAction_Run_Writer(t *testing.T) {
-	expected := "foo"
-	cmd := NewShellCommandAction("echo " + expected)
+	want := "foo"
+	cmd := NewShellCommandAction("echo " + want)
 	buf := new(bytes.Buffer)
 	cmd.outputWriter = buf
 
@@ -26,9 +26,9 @@ func TestShellCommandAction_Run_Writer(t *testing.T) {
 		t.Errorf("command failed: %s", err)
 	}
 
-	stdout := strings.TrimSpace(buf.String())
-	if stdout != expected {
-		t.Errorf("expected STDOUT to be '%s'; got '%s'", expected, stdout)
+	stdout := buf.String()
+	if !strings.Contains(stdout, want) {
+		t.Errorf("wanted STDOUT to contain '%s'; got '%s'", want, stdout)
 	}
 }
 
@@ -37,22 +37,21 @@ func TestShellCommandAction_Run_Fail(t *testing.T) {
 
 	err := cmd.Run()
 	if err == nil {
-		t.Fatal("expected command to fail with non-zero exit code")
+		t.Fatal("wanted command to fail with non-zero exit code")
 	}
 
-	expected := "shell_action: exit status 1"
-	if expected != err.Error() {
-		t.Errorf("expected error message %s; got %s", expected, err.Error())
+	want := "shell_action"
+	if !strings.HasPrefix(err.Error(), want) {
+		t.Errorf("wanted error prefix %s; got %s", want, err.Error())
 	}
 }
 
 func TestShellCommandAction_String(t *testing.T) {
-	cmd := NewShellCommandAction("foo bar")
+	command := "foo bar"
+	cmd := NewShellCommandAction(command)
 
-	expected := "[sh]: foo bar"
-	actual := cmd.String()
-
-	if actual != expected {
-		t.Errorf("expected %s, got %s", expected, actual)
+	wanted := "[sh]: " + command
+	if wanted != cmd.String() {
+		t.Errorf("wanted %s, got %s", wanted, cmd)
 	}
 }

@@ -11,22 +11,19 @@ import (
 func TestDep_String(t *testing.T) {
 	dep := Dep{Name: "foo"}
 
-	expected := "<dep.Dep \"foo\">"
-	actual := dep.String()
-
-	if expected != actual {
-		t.Errorf("wanted %s, got %s", expected, actual)
+	want := "<dep.Dep \"foo\">"
+	if want != dep.String() {
+		t.Errorf("want %+v, got %+v", want, dep)
 	}
 }
 
 func TestDep_Type(t *testing.T) {
 	dep := Dep{}
 
-	expected := "dep.Dep"
-	actual := dep.Type()
-
-	if expected != actual {
-		t.Errorf("wanted %s, got %s", expected, actual)
+	want := "dep.Dep"
+	got := dep.Type()
+	if want != got {
+		t.Errorf("want %s, got %s", want, got)
 	}
 }
 
@@ -44,25 +41,25 @@ func TestDep_Hash(t *testing.T) {
 	_, err := dep.Hash()
 
 	if err == nil {
-		t.Fatal("expected Hash to return an error")
+		t.Fatal("wanted Hash to return an error")
 	}
 
-	if !strings.Contains(err.Error(), "unhashable type") {
-		t.Errorf("expected error to contain 'unhashable type")
+	if !strings.HasPrefix(err.Error(), "unhashable type") {
+		t.Errorf("wanted error to contain 'unhashable type")
 	}
 }
 
 func TestAsString(t *testing.T) {
-	expected := "foo"
-	value := starlark.String(expected)
-	actual, err := asString(value)
+	want := "foo"
+	value := starlark.String(want)
+	got, err := asString(value)
 
 	if err != nil {
 		t.Errorf("could not parse starlark string")
 	}
 
-	if expected != actual {
-		t.Errorf("wanted %s, got %s", expected, actual)
+	if want != got {
+		t.Errorf("want %s, got %s", want, got)
 	}
 }
 
@@ -77,7 +74,7 @@ func TestAsString_NotString(t *testing.T) {
 	for _, value := range values {
 		_, err := asString(value)
 		if err == nil {
-			t.Errorf("expected error parsing value %v to a string", value)
+			t.Errorf("wanted error parsing value %+v to a string", value)
 		}
 	}
 }
@@ -99,9 +96,9 @@ func TestAsRequirementsList(t *testing.T) {
 	}
 
 	for i, item := range list {
-		expected := depItems[i]
-		if expected != item {
-			t.Errorf("wanted %s, got %s", expected, item)
+		want := depItems[i]
+		if want != item {
+			t.Errorf("want %+v, got %+v", want, item)
 		}
 	}
 }
@@ -116,11 +113,11 @@ func TestAsRequirementsList_NotDep(t *testing.T) {
 	for _, list := range lists {
 		_, err := asRequirementsList(list)
 		if err == nil {
-			t.Fatal("expected error")
+			t.Fatal("wanted error")
 		}
 
 		if !strings.Contains(err.Error(), "is not a dep") {
-			t.Error("expected error message to contain 'is not a dep'")
+			t.Error("wanted error message to contain 'is not a dep'")
 		}
 	}
 }
@@ -135,11 +132,11 @@ func TestAsRequirementsList_NotList(t *testing.T) {
 	for _, value := range values {
 		_, err := asRequirementsList(value)
 		if err == nil {
-			t.Fatalf("expected error parsing %s as a list", value)
+			t.Fatalf("wanted error parsing %s as a list", value)
 		}
 
 		if !strings.Contains(err.Error(), "is not a list") {
-			t.Errorf("expected error message to contain 'is not a list'")
+			t.Errorf("wanted error message to contain 'is not a list'")
 		}
 	}
 }
@@ -161,9 +158,10 @@ func TestAsCommandList(t *testing.T) {
 	}
 
 	for i, item := range list {
-		expected := cmdItems[i].Command
-		if expected != item.Command {
-			t.Errorf("wanted %s, got %s", expected, item)
+		want := cmdItems[i].Command
+		got := item.Command
+		if want != got {
+			t.Errorf("want %+v, got %+v", want, got)
 		}
 	}
 }
@@ -178,11 +176,11 @@ func TestAsCommandList_NotDep(t *testing.T) {
 	for _, list := range lists {
 		_, err := asCommandList(list)
 		if err == nil {
-			t.Fatal("expected error")
+			t.Fatal("wanted error")
 		}
 
 		if !strings.Contains(err.Error(), "is not a command") {
-			t.Error("expected error message to contain 'is not a command'")
+			t.Error("wanted error message to contain 'is not a command'")
 		}
 	}
 }
@@ -197,11 +195,11 @@ func TestAsCommandList_NotList(t *testing.T) {
 	for _, value := range values {
 		_, err := asCommandList(value)
 		if err == nil {
-			t.Fatalf("expected error parsing %s as a list", value)
+			t.Fatalf("wanted error parsing %s as a list", value)
 		}
 
 		if !strings.Contains(err.Error(), "is not a list") {
-			t.Errorf("expected error message to contain 'is not a list'")
+			t.Errorf("wanted error message to contain 'is not a list'")
 		}
 	}
 }

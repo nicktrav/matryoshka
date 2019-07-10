@@ -19,11 +19,11 @@ func TestDependency_Satisfy_StateKnown(t *testing.T) {
 		dep.State = state
 		errs := dep.Satisfy()
 		if len(errs) > 0 {
-			t.Errorf("was not expecting errors; got %s", errs)
+			t.Errorf("wanted no errors; got %s", errs)
 		}
 
 		if action.count != 0 {
-			t.Errorf("action was called %d times; expected 0", action.count)
+			t.Errorf("wanted action called 0 times; called %d times0", action.count)
 		}
 	}
 }
@@ -33,11 +33,11 @@ func TestDependency_Satisfy_NoDepsOrActions(t *testing.T) {
 
 	errs := dep.Satisfy()
 	if len(errs) > 0 {
-		t.Errorf("was not expecting errors; got %s", errs)
+		t.Errorf("wanted no errors; got %s", errs)
 	}
 
 	if dep.State != satisfied {
-		t.Errorf("was expecting state satisfied; got %s", dep.State)
+		t.Errorf("wanted state satisfied; got %s", dep.State)
 	}
 }
 
@@ -54,15 +54,15 @@ func TestDependency_Satisfy_DepsCachedUnsatisfied(t *testing.T) {
 
 	errs := foo.Satisfy()
 	if len(errs) > 0 {
-		t.Errorf("was not expecting errors; got %s", errs)
+		t.Errorf("wanted no errors; got %s", errs)
 	}
 
 	if foo.State != unsatisfied {
-		t.Errorf("was expecting state unsatisfied; got %s", foo.State)
+		t.Errorf("wanted state unsatisfied; got %s", foo.State)
 	}
 
 	if action.count > 0 {
-		t.Errorf("action was called %d times; expected 0", action.count)
+		t.Errorf("wanted action called 0 times; called %d times", action.count)
 	}
 }
 
@@ -81,21 +81,21 @@ func TestDependency_Satisfy_DepsMeetActionFails(t *testing.T) {
 
 	errs := foo.Satisfy()
 	if len(errs) != 1 {
-		t.Errorf("was expecting 1 error; got %d", len(errs))
+		t.Errorf("wanted 1 error; got %d", len(errs))
 	}
 
-	actual := errs[0].Error()
-	expected := fmt.Sprintf("meet action: %s", err)
-	if expected != actual {
-		t.Errorf("expected %s; got %s", expected, actual)
+	want := fmt.Sprintf("meet action: %s", err)
+	got := errs[0].Error()
+	if want != got {
+		t.Errorf("wanted %s; got %s", want, got)
 	}
 
 	if foo.State != unsatisfied {
-		t.Errorf("was expecting state unsatisfied; got %s", foo.State)
+		t.Errorf("wanted state unsatisfied; got %s", foo.State)
 	}
 
 	if action.count > 0 {
-		t.Errorf("action was called %d times; expected 0", action.count)
+		t.Errorf("wanted action called 0 times; called %d times", action.count)
 	}
 }
 
@@ -110,19 +110,19 @@ func TestDependency_Satisfy_MetActionFailsThenSucceeds(t *testing.T) {
 
 	errs := dep.Satisfy()
 	if len(errs) > 0 {
-		t.Errorf("was not expecting errors; got %s", errs)
+		t.Errorf("wanted no errors; got %s", errs)
 	}
 
 	if dep.State != satisfied {
-		t.Errorf("was expecting state satisfied; got %s", dep.State)
+		t.Errorf("wanted state satisfied; got %s", dep.State)
 	}
 
 	if metAction.count != 2 {
-		t.Errorf("was expecting metAction to be called twice; called %d times", metAction.count)
+		t.Errorf("wanted metAction to be called twice; called %d times", metAction.count)
 	}
 
 	if meetAction.count != 1 {
-		t.Errorf("was expecting meetAction to be called once; called %d times", meetAction.count)
+		t.Errorf("wanted meetAction to be called once; called %d times", meetAction.count)
 	}
 }
 
@@ -137,19 +137,19 @@ func TestDependency_Satisfy_MetActionSucceeds(t *testing.T) {
 
 	errs := dep.Satisfy()
 	if len(errs) > 0 {
-		t.Errorf("not expecting errors; got %s", errs)
+		t.Errorf("wanted no errors; got %s", errs)
 	}
 
 	if dep.State != satisfied {
-		t.Errorf("expecting state satisfied; got %s", dep.State)
+		t.Errorf("wanted state satisfied; got %s", dep.State)
 	}
 
 	if meetAction.count > 0 {
-		t.Errorf("expecting meet action to be called; was called %d times", meetAction.count)
+		t.Errorf("wanted action to not be called; called %d times", meetAction.count)
 	}
 
 	if metAction.count != 1 {
-		t.Errorf("expecting met action to be called once; was called %d times", metAction.count)
+		t.Errorf("wanted met action to be called once; called %d times", metAction.count)
 	}
 }
 
@@ -165,25 +165,25 @@ func TestDependency_Satisfy_MetActionSucceeds_MeetActionFails(t *testing.T) {
 
 	errs := dep.Satisfy()
 	if len(errs) != 1 {
-		t.Errorf("expecting one error; got %d", len(errs))
+		t.Errorf("wanted one error; got %d", len(errs))
 	}
 
 	if dep.State != unsatisfied {
-		t.Errorf("expecting state unsatisfied; got %s", dep.State)
+		t.Errorf("wanted state unsatisfied; got %s", dep.State)
 	}
 
-	expected := fmt.Sprintf("meet action: %s", err)
-	actual := errs[0].Error()
-	if expected != actual {
-		t.Errorf("expected %s; got %s", expected, actual)
+	want := fmt.Sprintf("meet action: %s", err)
+	got := errs[0].Error()
+	if want != got {
+		t.Errorf("wanted %s; got %s", want, got)
 	}
 
 	if meetAction.count != 1 {
-		t.Errorf("expecting meet action to be once; was called %d times", meetAction.count)
+		t.Errorf("wanted meet action to be called once; called %d times", meetAction.count)
 	}
 
 	if metAction.count != 1 {
-		t.Errorf("expecting met action to be called once; was called %d times", metAction.count)
+		t.Errorf("wanted met action to be called once; called %d times", metAction.count)
 	}
 }
 
