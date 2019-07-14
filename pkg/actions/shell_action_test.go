@@ -15,11 +15,16 @@ func TestShellCommandAction_Run_Success(t *testing.T) {
 	}
 }
 
-func TestShellCommandAction_Run_Writer(t *testing.T) {
+func TestShellCommandAction_Run_Debug(t *testing.T) {
 	want := "foo"
 	cmd := NewShellCommandAction("echo " + want)
+
+	// replace stderr with our own buffer, to capture the output of the command
 	buf := new(bytes.Buffer)
 	cmd.outputWriter = buf
+
+	// enable debugging
+	cmd.Debug()
 
 	err := cmd.Run()
 	if err != nil {

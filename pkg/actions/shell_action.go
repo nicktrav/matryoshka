@@ -3,6 +3,7 @@ package actions
 import (
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 )
 
@@ -16,13 +17,19 @@ type ShellCommandAction struct {
 
 	// outputWriter is a writer to use for capturing stdout and stderr
 	outputWriter io.Writer
+
+	// debug determines whether the command will output debug information to
+	// the outputWriter
+	debug bool
+
 }
 
 // NewShellCommandAction constructs and returns a new ShellCommandAction
 // from the given command
 func NewShellCommandAction(command string) *ShellCommandAction {
 	return &ShellCommandAction{
-		command: command,
+		command:      command,
+		outputWriter: os.Stderr,
 	}
 }
 
@@ -31,7 +38,7 @@ func NewShellCommandAction(command string) *ShellCommandAction {
 func (s *ShellCommandAction) Run() error {
 	cmd := exec.Command("sh", "-c", s.command)
 
-	if s.outputWriter != nil {
+	if s.debug {
 		cmd.Stdout = s.outputWriter
 		cmd.Stderr = s.outputWriter
 	}
@@ -44,7 +51,11 @@ func (s *ShellCommandAction) Run() error {
 	return nil
 }
 
-// String prints a string representation of the current commad
+func (s *ShellCommandAction) Debug() {
+	s.debug = true
+}
+
+// String prints a string representation of the current command
 func (s ShellCommandAction) String() string {
 	return "[sh]: " + s.command
 }
