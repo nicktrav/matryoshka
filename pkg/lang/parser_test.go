@@ -2,8 +2,6 @@ package lang
 
 import (
 	"testing"
-
-	"go.starlark.net/starlark"
 )
 
 const (
@@ -33,28 +31,12 @@ func TestParser_SimpleMain(t *testing.T) {
 		t.Errorf("did not expect error %s", err)
 	}
 
-	modules := parser.Modules()
-	if len(modules) != 1 {
-		t.Errorf("wanted 1 file , got %d", len(modules))
+	deps := parser.Deps()
+	if len(deps) != 2 {
+		t.Errorf("wanted 2 deps, got %d", len(deps))
 	}
 
-	main := modules[0]
-	if len(main.Keys()) != 2 {
-		t.Errorf("wanted 2 variables in main.dep, got %d", len(main.Keys()))
-	}
-
-	// Check the "all" Dep
-
-	all, ok := main["all"]
-	if !ok {
-		t.Errorf("main.dep does to have Dep 'all'")
-	}
-
-	dep, ok := all.(*Dep)
-	if !ok {
-		t.Errorf("'all' was not a Dep")
-	}
-
+	dep := pluckDep("all", deps)
 	if dep.Name != "all" {
 		t.Errorf("name of Dep 'all' was not 'all'; got %s", dep.Name)
 	}
@@ -95,15 +77,7 @@ func TestParser_SimpleMain(t *testing.T) {
 
 	// Check the "foo" Dep
 
-	foo, ok := main["foo"]
-	if !ok {
-		t.Errorf("wanted main.dep to have dep 'foo'")
-	}
-
-	dep, ok = foo.(*Dep)
-	if !ok {
-		t.Errorf("wanted 'foo' to be a Dep")
-	}
+	dep = pluckDep("foo", deps)
 	if dep.Name != "foo" {
 		t.Errorf("wanted name of Dep 'foo' to be 'foo'; got %s", dep.Name)
 	}
@@ -129,16 +103,16 @@ func TestParser_MultiFile(t *testing.T) {
 		t.Errorf("parser.Run: %s", err)
 	}
 
-	modules := parser.Modules()
-	if len(modules) != 4 {
-		t.Errorf("wanted 4 files, got %d", len(modules))
+	deps := parser.Deps()
+	if len(deps) != 5 {
+		t.Errorf("wanted 5 deps, got %d", len(deps))
 	}
 
-	depMap := toMap(modules)
-	wantedGlobals := []string{"all", "foo", "bar", "baz", "bam"}
-	for _, want := range wantedGlobals {
+	depMap := toMap(deps)
+	wantedDeps := []string{"all", "foo", "bar", "baz", "bam"}
+	for _, want := range wantedDeps {
 		if _, contains := depMap[want]; !contains {
-			t.Errorf("wanted module %s in module %+v", wantedGlobals, modules)
+			t.Errorf("wanted dep %s in module %+v", want, deps)
 		}
 	}
 
@@ -186,17 +160,11 @@ func TestParser_MultiFile(t *testing.T) {
 	}
 }
 
-func toMap(modules []starlark.StringDict) map[string]*Dep {
+func toMap(deps []*Dep) map[string]*Dep {
 	depMap := make(map[string]*Dep)
 
-	for _, module := range modules {
-		for key, val := range module {
-			dep, ok := val.(*Dep)
-			if !ok {
-				continue
-			}
-			depMap[key] = dep
-		}
+	for _, dep := range deps {
+		depMap[dep.Name] = dep
 	}
 
 	return depMap
@@ -209,4 +177,13 @@ func contains(want string, requirements []*Dep) bool {
 		}
 	}
 	return false
+}
+
+func pluckDep(name string, deps []*Dep) *Dep {
+	for _, dep := range deps {
+		if dep.Name == name {
+			return dep
+		}
+	}
+	return nil
 }

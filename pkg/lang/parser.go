@@ -29,9 +29,8 @@ type Parser interface {
 	// Run executes the parser.
 	Run() error
 
-	// Modules returns a slice of pointers to Starlark dictionaries
-	// representing the globals returned from parsing the Starlark files.
-	Modules() []starlark.StringDict
+	// Deps is a slice of pointers to parsed Deps.
+	Deps() []*Dep
 }
 
 // NewParser returns a new Parser for the given root directory.
@@ -126,11 +125,16 @@ func (s cachedParser) Run() error {
 	return nil
 }
 
-// Modules returns a map of module names to Deps that were collected from the Starlark files while parsing
-func (s cachedParser) Modules() []starlark.StringDict {
-	var dicts []starlark.StringDict
+// Deps flattens the deps parsed across all modules and returns a slice of
+// pointers to them.
+func (s cachedParser) Deps() []*Dep {
+	var deps []*Dep
 	for _, entry := range s.cache {
-		dicts = append(dicts, entry.globals)
+		for _, global := range entry.globals {
+			if dep, ok := global.(*Dep); ok {
+				deps = append(deps, dep)
+			}
+		}
 	}
-	return dicts
+	return deps
 }
