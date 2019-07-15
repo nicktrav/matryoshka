@@ -7,6 +7,20 @@ import (
 	"os"
 )
 
+const (
+	// ANSI control sequences
+	colorGreen = 92
+	colorRed   = 91
+	escape     = "\x1b"
+)
+
+type PrintOption func(*depPrinter)
+
+// WithColor is a PrintOption to enable color in the output
+var WithColor = func(printer *depPrinter) {
+	printer.colorize = true
+}
+
 // depPrinter is a NodeVisitor that prints out some metadata about each Dep that
 // it visits. The output is indented to represent the dependency graph.
 type depPrinter struct {
@@ -14,14 +28,23 @@ type depPrinter struct {
 	// indentLevel is the amount to indent each log line
 	indentLevel int
 
-	// the destination for any output that may be printed
+	// writer is the destination for any output that may be printed
 	writer io.Writer
+
+	// colorize determines whether to print the output with color
+	colorize bool
 }
 
 // NewDepPrinter returns a new DepVisitor that will print the dependency graph
 // to Stdout.
-func NewDepPrinter() DepVisitor {
-	return &depPrinter{writer: os.Stdout}
+func NewDepPrinter(options ...PrintOption) DepVisitor {
+	printer := &depPrinter{writer: os.Stdout}
+
+	for _, option := range options {
+		option(printer)
+	}
+
+	return printer
 }
 
 // Visit does nothing.
@@ -42,12 +65,12 @@ func (p *depPrinter) PostVisit(dep *Dependency) {
 	var icon string
 	switch isMet(dep) {
 	case true:
-		icon = "✔"
+		icon = p.green(fmt.Sprintf("✔ %s", dep.Name))
 	case false:
-		icon = "✖"
+		icon = p.red(fmt.Sprintf("✖ %s", dep.Name))
 	}
 
-	p.printf("} %s %s", dep.Name, icon)
+	p.printf("} %s", icon)
 }
 
 // printf is a simple wrapper around fmt.Println that adds the requisite amount
@@ -88,4 +111,23 @@ func isMet(d *Dependency) bool {
 
 	d.State = Satisfied
 	return true
+}
+
+// red returns the given string output as red.
+func (p *depPrinter) red(s string) string {
+	return p.wrap(s, colorRed)
+}
+
+// green returns the given string output as green.
+func (p *depPrinter) green(s string) string {
+	return p.wrap(s, colorGreen)
+}
+
+// wrap returns the the given string with the given color, unless coloring is
+// disabled.
+func (p *depPrinter) wrap(s string, color int) string {
+	if !p.colorize {
+		return s
+	}
+	return fmt.Sprintf("%s[%dm%s%s[0m", escape, color, s, escape)
 }

@@ -21,7 +21,6 @@ type ShellCommandAction struct {
 	// debug determines whether the command will output debug information to
 	// the outputWriter
 	debug bool
-
 }
 
 // NewShellCommandAction constructs and returns a new ShellCommandAction
