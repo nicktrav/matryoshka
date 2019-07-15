@@ -6,25 +6,38 @@ import (
 	"github.com/nicktrav/matryoshka/pkg/actions"
 )
 
-// ExecutorOptions contains configuration information for an executor.
-type ExecutorOptions struct {
+type ExecutorOption func(*executor)
 
-	// Debug determines whether debug output will be printed.
-	Debug bool
-
-	// DryRun determines whether the "meet" action on each dep will be run.
-	DryRun bool
+// Debug enables debug output.
+var Debug = func(e *executor) {
+	e.debug = true
 }
 
-// NewExecutor returns a new executor.
-func NewExecutor(options ExecutorOptions) DepVisitor {
-	return &executor{options}
+// DryRun ensures that the "meet" actions are not run. "Met" actions are run.
+var DryRun = func(e *executor) {
+	e.dryRun = true
+}
+
+// NewExecutor returns a new executor, with the given options.
+func NewExecutor(options ...ExecutorOption) DepVisitor {
+	e := &executor{}
+
+	for _, option := range options {
+		option(e)
+	}
+
+	return e
 }
 
 // executor is a DepVisitor that will attempt to execute the "meet" actions on
 // the Dependency it is visiting.
 type executor struct {
-	options ExecutorOptions
+
+	// Debug determines whether debug output will be printed.
+	debug bool
+
+	// DryRun determines whether the "meet" action on each dep will be run.
+	dryRun bool
 }
 
 // Visit attempts to satisfy the current dependency, first checking that dep
@@ -54,7 +67,7 @@ func (e *executor) Visit(dep *Dependency) error {
 	// else check the met actions of this node
 	satisfied := true
 	for _, a := range dep.MetActions {
-		if e.options.Debug {
+		if e.debug {
 			enableDebug(a)
 		}
 
@@ -75,11 +88,11 @@ func (e *executor) Visit(dep *Dependency) error {
 	for _, a := range dep.MeetActions {
 
 		// if running in dry-run mode, don't run the action
-		if e.options.DryRun {
+		if e.dryRun {
 			continue
 		}
 
-		if e.options.Debug {
+		if e.debug {
 			enableDebug(a)
 		}
 
@@ -92,7 +105,7 @@ func (e *executor) Visit(dep *Dependency) error {
 
 	// check the met actions again
 	for _, a := range dep.MetActions {
-		if e.options.Debug {
+		if e.debug {
 			enableDebug(a)
 		}
 

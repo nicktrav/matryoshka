@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	g "github.com/nicktrav/matryoshka/pkg/graph"
+	"github.com/nicktrav/matryoshka/pkg/graph"
 	"github.com/nicktrav/matryoshka/pkg/lang"
 )
 
@@ -14,17 +14,21 @@ import (
 //
 // Usage of ./print:
 //
-//  -dir string
+//  -dir string (required)
 //        the directory of files to parse
+//  -no-color
+//        disable color in output
 //  -start string
-//        the directory of files to parse (default "all")
+//        the dependency to start from (default "all")
+//
 
 func main() {
 	var dir, start string
 	var disableColor bool
 	flag.StringVar(&dir, "dir", "", "the directory of files to parse")
+
 	flag.StringVar(&start, "start", "all", "the dependency to start from")
-	flag.BoolVar(&disableColor, "nocolor", false, "disable color in output")
+	flag.BoolVar(&disableColor, "no-color", false, "disable color in output")
 	flag.Parse()
 
 	if dir == "" {
@@ -38,34 +42,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	graph := g.NewDependencyGraph()
-	graph.Construct(parser.Deps())
+	depGraph := graph.NewDependencyGraph()
+	depGraph.Construct(parser.Deps())
 
 	fmt.Println("Found the following dependencies:")
 	fmt.Println()
-	for i, dep := range graph.Deps() {
+	for i, dep := range depGraph.Deps() {
 		fmt.Printf("\t%3d: %s -> %s\n", i, dep.Name, getDeps(dep))
-	}
-
-	fmt.Printf("\nWalking the graph from node '%s' ...\n", start)
-	fmt.Println()
-
-	var printOptions []g.PrintOption
-	if !disableColor {
-		printOptions = append(printOptions, g.WithColor)
-	}
-	printer := g.NewDepPrinter(printOptions...)
-
-	walker := g.NewWalker(printer)
-	err = walker.Walk(graph, start)
-	if err != nil {
-		log.Fatal(err)
 	}
 }
 
 // getDeps returns a slice of names for each of the given Dependency's own
 // dependencies.
-func getDeps(dep *g.Dependency) []string {
+func getDeps(dep *graph.Dependency) []string {
 	var names []string
 	for _, d := range dep.Dependencies {
 		names = append(names, d.Name)

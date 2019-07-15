@@ -200,6 +200,34 @@ func TestExecutor_EnableDebug_DebugAction(t *testing.T) {
 	}
 }
 
+func TestNewExecutor_DebugOption(t *testing.T) {
+	e := &executor{debug: false}
+
+	if e.debug {
+		t.Errorf("wanted debug 'false'; got 'true'")
+	}
+
+	Debug(e)
+
+	if !e.debug {
+		t.Errorf("wanted debug 'true'; got 'false'")
+	}
+}
+
+func TestNewExecutor_DryRunOption(t *testing.T) {
+	e := &executor{dryRun: false}
+
+	if e.dryRun {
+		t.Errorf("wanted dryRun 'false'; got 'true'")
+	}
+
+	DryRun(e)
+
+	if !e.dryRun {
+		t.Errorf("wanted dryRun 'true'; got 'false'")
+	}
+}
+
 // countingAction is an Action that counts the number of time is was called.
 type countingAction struct {
 	count int
