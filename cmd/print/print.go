@@ -21,8 +21,10 @@ import (
 
 func main() {
 	var dir, start string
+	var disableColor bool
 	flag.StringVar(&dir, "dir", "", "the directory of files to parse")
 	flag.StringVar(&start, "start", "all", "the dependency to start from")
+	flag.BoolVar(&disableColor, "nocolor", false, "disable color in output")
 	flag.Parse()
 
 	if dir == "" {
@@ -48,9 +50,13 @@ func main() {
 	fmt.Printf("\nWalking the graph from node '%s' ...\n", start)
 	fmt.Println()
 
-	printer := g.NewDepPrinter()
-	walker := g.NewWalker(printer)
+	var printOptions []g.PrintOption
+	if !disableColor {
+		printOptions = append(printOptions, g.WithColor)
+	}
+	printer := g.NewDepPrinter(printOptions...)
 
+	walker := g.NewWalker(printer)
 	err = walker.Walk(graph, start)
 	if err != nil {
 		log.Fatal(err)

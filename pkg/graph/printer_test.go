@@ -52,7 +52,7 @@ func TestDepPrinter_PostVisit_IsSatisfied(t *testing.T) {
 		t.Errorf("wanted indentLevel zero; got %d", printer.indentLevel)
 	}
 
-	wanted := "} foo ✔\n"
+	wanted := "} ✔ foo\n"
 	if buf.String() != wanted {
 		t.Errorf("wanted string '%s'; got %s", wanted, buf.String())
 	}
@@ -70,8 +70,50 @@ func TestDepPrinter_PostVisit_IsUnsatisfied(t *testing.T) {
 		t.Errorf("wanted indentLevel zero; got %d", printer.indentLevel)
 	}
 
-	wanted := "} foo ✖\n"
+	wanted := "} ✖ foo\n"
 	if buf.String() != wanted {
 		t.Errorf("wanted string '%s'; got %s", wanted, buf.String())
+	}
+}
+
+func TestDepPrinter_NoColor(t *testing.T) {
+	printer := depPrinter{colorize: false}
+
+	want := "foo"
+	outputs := []string{
+		printer.wrap(want, colorGreen),
+		printer.wrap(want, colorRed),
+	}
+
+	for _, output := range outputs {
+		if output != want {
+			t.Errorf("wanted plain output '%s'; got '%s'", want, output)
+		}
+	}
+}
+
+func TestDepPrinter_Color(t *testing.T) {
+	printer := depPrinter{colorize: true}
+
+	type testInput struct {
+		s     string
+		color int
+	}
+
+	inputs := []testInput{
+		{"foo", colorGreen},
+		{"foo", colorRed},
+	}
+
+	want := []string{
+		"[92mfoo[0m",
+		"[91mfoo[0m",
+	}
+
+	for i, input := range inputs {
+		got := printer.wrap(input.s, input.color)
+		if got != want[i] {
+			t.Errorf("wanted '%s'; got '%s'", want[i], got)
+		}
 	}
 }
