@@ -2,7 +2,7 @@ package lang
 
 import (
 	"fmt"
-	"os"
+	oslib "os"
 	"path/filepath"
 
 	"go.starlark.net/starlark"
@@ -12,16 +12,20 @@ const (
 	main  = "main.dep"
 	shell = "shell"
 	dep   = "dep"
+	os    = "os"
 )
 
-var shellBuiltin = starlark.NewBuiltin(shell, FnShell)
+var (
+	shellBuiltin = starlark.NewBuiltin(shell, FnShell)
+	depBuiltin   = starlark.NewBuiltin(dep, FnDep)
+	osBuiltin    = starlark.NewBuiltin(os, FnOs)
 
-var depBuiltin = starlark.NewBuiltin(dep, FnDep)
-
-var defaultModules = starlark.StringDict{
-	shell: shellBuiltin,
-	dep:   depBuiltin,
-}
+	defaultModules = starlark.StringDict{
+		shell: shellBuiltin,
+		dep:   depBuiltin,
+		os:    osBuiltin,
+	}
+)
 
 // Parser executes a Starlark program by parsing one or more Starlark files.
 type Parser interface {
@@ -78,8 +82,8 @@ func (s cachedParser) Run() error {
 	// check for the main entrypoint
 	// TODO(nickt): remove the requirement to look for a main file
 	main := filepath.Join(s.root, main)
-	_, err := os.Stat(main)
-	if os.IsNotExist(err) {
+	_, err := oslib.Stat(main)
+	if oslib.IsNotExist(err) {
 		return fmt.Errorf("main.dep not found")
 	}
 
