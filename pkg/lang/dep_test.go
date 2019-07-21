@@ -143,9 +143,9 @@ func TestAsRequirementsList_NotList(t *testing.T) {
 
 func TestAsCommandList(t *testing.T) {
 	cmdItems := []ShellCmd{
-		{"foo"},
-		{"bar"},
-		{"baz"},
+		{Shell: "foo"},
+		{Shell: "bar"},
+		{Shell: "baz"},
 	}
 	var values []starlark.Value
 	for _, item := range cmdItems {

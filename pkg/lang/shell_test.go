@@ -8,7 +8,7 @@ import (
 )
 
 func TestString(t *testing.T) {
-	cmd := ShellCmd{"foo"}
+	cmd := ShellCmd{Command: "foo"}
 
 	wanted := "<dep.ShellCmd \"foo\">"
 	got := cmd.String()
@@ -19,7 +19,7 @@ func TestString(t *testing.T) {
 }
 
 func TestType(t *testing.T) {
-	cmd := ShellCmd{"foo"}
+	cmd := ShellCmd{Command: "foo"}
 
 	wanted := "dep.ShellCmd"
 	got := cmd.Type()
@@ -30,7 +30,7 @@ func TestType(t *testing.T) {
 }
 
 func TestTruth(t *testing.T) {
-	cmd := ShellCmd{"foo"}
+	cmd := ShellCmd{Command: "foo"}
 
 	if !cmd.Truth() {
 		t.Error("wanted cmd.Truth to return true; got false")
@@ -38,7 +38,7 @@ func TestTruth(t *testing.T) {
 }
 
 func TestHash(t *testing.T) {
-	cmd := ShellCmd{"foo"}
+	cmd := ShellCmd{Command: "foo"}
 
 	_, err := cmd.Hash()
 
@@ -51,7 +51,7 @@ func TestHash(t *testing.T) {
 	}
 }
 
-func TestShellCmd(t *testing.T) {
+func TestFnShell_defaults(t *testing.T) {
 	thread := &starlark.Thread{}
 	builtin := &starlark.Builtin{}
 
@@ -71,5 +71,60 @@ func TestShellCmd(t *testing.T) {
 	got := cmd.Command
 	if want != got {
 		t.Errorf("wanted %s, got %s", want, got)
+	}
+
+	got = cmd.Shell
+	if got != defaultShell {
+		t.Errorf("wanted default shell %s; got %s", defaultShell, got)
+	}
+
+	if cmd.Login {
+		t.Errorf("wanted login shell to be false; was true")
+	}
+}
+
+func TestFnShell_nonDefaultShell(t *testing.T) {
+	thread := &starlark.Thread{}
+	builtin := &starlark.Builtin{}
+
+	args := []starlark.Value{starlark.String("foo")}
+	nonDefaultShell := "zsh"
+	kwargs := []starlark.Tuple{{starlark.String("shell"), starlark.String("zsh")}}
+
+	value, err := FnShell(thread, builtin, args, kwargs)
+	if err != nil {
+		t.Errorf("error running FnShell with args %+v, kwargs %+v", args, kwargs)
+	}
+
+	cmd, ok := value.(ShellCmd)
+	if !ok {
+		t.Errorf("returned value %s was not a ShellCmd", value)
+	}
+
+	got := cmd.Shell
+	if got != nonDefaultShell {
+		t.Errorf("wanted default shell %s; got %s", nonDefaultShell, got)
+	}
+}
+
+func TestFnShell_nonDefaultLogin(t *testing.T) {
+	thread := &starlark.Thread{}
+	builtin := &starlark.Builtin{}
+
+	args := []starlark.Value{starlark.String("foo")}
+	kwargs := []starlark.Tuple{{starlark.String("login"), starlark.Bool(true)}}
+
+	value, err := FnShell(thread, builtin, args, kwargs)
+	if err != nil {
+		t.Errorf("error running FnShell with args %+v, kwargs %+v", args, kwargs)
+	}
+
+	cmd, ok := value.(ShellCmd)
+	if !ok {
+		t.Errorf("returned value %s was not a ShellCmd", value)
+	}
+
+	if !cmd.Login {
+		t.Error("wanted login to be true; got false")
 	}
 }
