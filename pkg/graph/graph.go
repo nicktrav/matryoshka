@@ -90,7 +90,7 @@ func (g *DependencyGraph) Deps() []*Dependency {
 func convertCommands(shellCommands []*lang.ShellCmd) []actions.Action {
 	var as []actions.Action
 	for _, command := range shellCommands {
-		shell := actions.NewShellCommandAction(command.Command)
+		shell := actions.NewShellCommandAction(command)
 		as = append(as, shell)
 	}
 	return as

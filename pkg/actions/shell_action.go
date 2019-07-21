@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+
+	"github.com/nicktrav/matryoshka/pkg/lang"
 )
 
 // ShellCommandAction is an Action that will run a command using a Bourne shell (i.e. `sh`)
@@ -14,6 +16,12 @@ type ShellCommandAction struct {
 
 	// command is the shell command to run
 	command string
+
+	// shell is the type of shell to run
+	shell string
+
+	// login determines whether the shell should be a login shell
+	login bool
 
 	// outputWriter is a writer to use for capturing stdout and stderr
 	outputWriter io.Writer
@@ -25,9 +33,11 @@ type ShellCommandAction struct {
 
 // NewShellCommandAction constructs and returns a new ShellCommandAction
 // from the given command
-func NewShellCommandAction(command string) *ShellCommandAction {
+func NewShellCommandAction(cmd *lang.ShellCmd) *ShellCommandAction {
 	return &ShellCommandAction{
-		command:      command,
+		command:      cmd.Command,
+		shell:        cmd.Shell,
+		login:        cmd.Login,
 		outputWriter: os.Stderr,
 	}
 }
@@ -35,7 +45,13 @@ func NewShellCommandAction(command string) *ShellCommandAction {
 // Run executes the command as a Shell sub-process. If the command cannot be run,
 // the error is returned.
 func (s *ShellCommandAction) Run() error {
-	cmd := exec.Command("sh", "-c", s.command)
+	var args []string
+	if s.login {
+		args = append(args, "-i")
+	}
+	args = append(args, "-c", s.command)
+
+	cmd := exec.Command(s.shell, args...)
 
 	if s.debug {
 		cmd.Stdout = s.outputWriter
