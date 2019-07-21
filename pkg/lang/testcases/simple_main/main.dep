@@ -13,7 +13,7 @@ all = dep(
   name = 'all',
   requires = [foo],
   met = [
-    shell("echo 'Hello, world!'")
+    shell("echo 'Hello, {}!'".format(os()))
   ],
   meet = [
     shell("echo 'Hello, indeed!'"),

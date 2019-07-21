@@ -1,6 +1,8 @@
 package lang
 
 import (
+	"fmt"
+	"runtime"
 	"testing"
 )
 
@@ -53,9 +55,9 @@ func TestParser_SimpleMain(t *testing.T) {
 		t.Errorf("wanted Dep 'all' to have 1 'met' command; got %d", len(dep.MetCommands))
 	}
 
-	want := "echo 'Hello, world!'"
+	want := fmt.Sprintf("echo 'Hello, %s!'", runtime.GOOS)
 	got := dep.MetCommands[0].Command
-	if dep.MetCommands[0].Command != "echo 'Hello, world!'" {
+	if dep.MetCommands[0].Command != want {
 		t.Errorf("wanted Dep 'all' 'met' command to be '%s'; got '%s'", want, got)
 	}
 
