@@ -47,7 +47,7 @@ func NewShellCommandAction(cmd *lang.ShellCmd) *ShellCommandAction {
 func (s *ShellCommandAction) Run() error {
 	var args []string
 	if s.login {
-		args = append(args, "-i")
+		args = append(args, "-l")
 	}
 	args = append(args, "-c", s.command)
 
