@@ -51,6 +51,29 @@ func TestDependencyGraph_Construct(t *testing.T) {
 	assertMapContainsDep(t, g, "boom", boomDep)
 }
 
+func TestDependencyGraph_Construct_DisabledTopLevelDep(t *testing.T) {
+	g := NewDependencyGraph()
+	g.Construct([]*lang.Dep{excludedDep})
+
+	// graph contains no deps
+	if len(g.Deps()) != 0 {
+		t.Fatalf("wanted no entries in the graph; got %+v", g.Deps())
+	}
+}
+
+func TestDependencyGraph_Construct_DisabledRequirement(t *testing.T) {
+	g := NewDependencyGraph()
+	fooRawDep.Requirements = append(fooRawDep.Requirements, excludedDep)
+	g.Construct([]*lang.Dep{fooRawDep})
+
+	// graph does not contain the excluded dep
+	for _, dep := range g.depMap {
+		if dep.Name == excludedDep.Name {
+			t.Errorf("did not expect excluded dep")
+		}
+	}
+}
+
 func assertMapContainsDep(t *testing.T, g *DependencyGraph, depName string, wantedDep *Dependency) {
 	dep, found := g.depMap[depName]
 

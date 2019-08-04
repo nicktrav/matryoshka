@@ -7,6 +7,7 @@ var fooRawDep = &lang.Dep{
 	Requirements: []*lang.Dep{barRawDep, bamRawDep},
 	MetCommands:  []*lang.ShellCmd{},
 	MeetCommands: []*lang.ShellCmd{},
+	Enable:       true,
 }
 
 var barRawDep = &lang.Dep{
@@ -14,6 +15,7 @@ var barRawDep = &lang.Dep{
 	Requirements: []*lang.Dep{bazRawDep, boomRawDep},
 	MetCommands:  []*lang.ShellCmd{},
 	MeetCommands: []*lang.ShellCmd{},
+	Enable:       true,
 }
 
 var bazRawDep = &lang.Dep{
@@ -21,6 +23,7 @@ var bazRawDep = &lang.Dep{
 	Requirements: []*lang.Dep{},
 	MetCommands:  []*lang.ShellCmd{},
 	MeetCommands: []*lang.ShellCmd{},
+	Enable:       true,
 }
 
 var bamRawDep = &lang.Dep{
@@ -28,6 +31,7 @@ var bamRawDep = &lang.Dep{
 	Requirements: []*lang.Dep{boomRawDep},
 	MetCommands:  []*lang.ShellCmd{},
 	MeetCommands: []*lang.ShellCmd{},
+	Enable:       true,
 }
 
 var boomRawDep = &lang.Dep{
@@ -35,4 +39,10 @@ var boomRawDep = &lang.Dep{
 	Requirements: []*lang.Dep{},
 	MetCommands:  []*lang.ShellCmd{},
 	MeetCommands: []*lang.ShellCmd{},
+	Enable:       true,
+}
+
+var excludedDep = &lang.Dep{
+	Name:   "excluded",
+	Enable: false,
 }

@@ -203,3 +203,28 @@ func TestAsCommandList_NotList(t *testing.T) {
 		}
 	}
 }
+
+func TestAsBool(t *testing.T) {
+	type testCase struct {
+		value          starlark.Value
+		errorExpected  bool
+		resultExpected bool
+	}
+	testCases := []testCase{
+		{starlark.String("foo"), true, false},
+		{starlark.Bool(true), false, true},
+		{starlark.Bool(false), false, false},
+	}
+
+	for _, testCase := range testCases {
+		res, err := asBool(testCase.value)
+
+		if testCase.errorExpected && err == nil {
+			t.Error("expected an error for input", testCase)
+		}
+
+		if !testCase.errorExpected && res != testCase.resultExpected {
+			t.Error("expected", testCase.resultExpected, "got", res)
+		}
+	}
+}

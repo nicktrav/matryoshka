@@ -28,6 +28,11 @@ func NewDependencyGraph() *DependencyGraph {
 // the dep map.
 func (g *DependencyGraph) Construct(deps []*lang.Dep) {
 	for _, dep := range deps {
+		// exclude any deps that aren't enabled
+		if !dep.Enable {
+			continue
+		}
+
 		if _, ok := g.depMap[dep.Name]; ok {
 			// TODO(nickt) this implies there's a duplicate dep, and we should warn
 			continue
@@ -39,6 +44,13 @@ func (g *DependencyGraph) Construct(deps []*lang.Dep) {
 // makeDep translates a Dep into a new Dependency, using a cached value if a
 // Dependency with the same name is already present in the dep map.
 func (g *DependencyGraph) makeDep(rawDep *lang.Dep) *Dependency {
+	// deps that aren't enabled can still end up in the graph if referenced
+	// directly from the requirements block of another dep, and should not be
+	// added to the graph. Return nil as a sentinel value.
+	if !rawDep.Enable {
+		return nil
+	}
+
 	// if dep is already in the map, return it
 	dep, found := g.depMap[rawDep.Name]
 	if found {
@@ -55,7 +67,10 @@ func (g *DependencyGraph) makeDep(rawDep *lang.Dep) *Dependency {
 	// for each requirement, recurse
 	var requirements []*Dependency
 	for _, req := range rawDep.Requirements {
-		requirements = append(requirements, g.makeDep(req))
+		reqDep := g.makeDep(req)
+		if reqDep != nil {
+			requirements = append(requirements, reqDep)
+		}
 	}
 
 	// add the generated Deps into the requirements list

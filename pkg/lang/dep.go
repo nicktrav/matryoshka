@@ -12,6 +12,7 @@ const (
 	argRequires    = starlark.String("requires")
 	argMet         = starlark.String("met")
 	argMeet        = starlark.String("meet")
+	argEnable      = starlark.String("enable")
 )
 
 // Dep represents the `dep()` builtin function and models a dependency in the
@@ -42,6 +43,11 @@ const (
 //       // current dependency
 //       shell("true"),
 //     ],
+//
+//     enable takes an expression that evaluates to a Boolean, determining
+//     whether this dep should be considered in the dependency graph, e.g.
+//     only consider the current Dep on Linux
+//     enable = os() == 'linux'
 //   )
 //
 type Dep struct {
@@ -69,6 +75,9 @@ type Dep struct {
 	// side-effects and  will install a particular dependency, clone a repo,
 	// or create a directory.
 	MeetCommands []*ShellCmd
+
+	// Enabled determines whether the current Dep is enabled.
+	Enable bool
 }
 
 // String returns the string representation of the Dep.
@@ -96,7 +105,7 @@ func (d Dep) Hash() (uint32, error) {
 // FnDep transforms the arguments into a Dep object after performing
 // validation on the keyword arguments.
 func FnDep(t *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
-	dep := &Dep{}
+	dep := &Dep{Enable: true}
 
 	for _, tuple := range kwargs {
 		key := tuple.Index(0)
@@ -138,6 +147,13 @@ func FnDep(t *starlark.Thread, fn *starlark.Builtin, args starlark.Tuple, kwargs
 				return nil, err
 			}
 			dep.MeetCommands = cmds
+
+		case argEnable:
+			enable, err := asBool(value)
+			if err != nil {
+				return nil, err
+			}
+			dep.Enable = enable
 
 		default:
 			continue
@@ -207,4 +223,14 @@ func asCommandList(value starlark.Value) ([]*ShellCmd, error) {
 	}
 
 	return commands, nil
+}
+
+// asBool returns the given value as a boolean. An error is returned if the
+// value is not a starlark Bool.
+func asBool(value starlark.Value) (bool, error) {
+	b, ok := value.(starlark.Bool)
+	if !ok {
+		return false, fmt.Errorf("value %v is not a bool", value)
+	}
+	return b == starlark.True, nil
 }
