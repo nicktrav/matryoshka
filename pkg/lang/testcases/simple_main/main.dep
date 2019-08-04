@@ -7,6 +7,7 @@ foo = dep(
   ],
   meet = [
   ],
+  enable = True,
 )
 
 all = dep(

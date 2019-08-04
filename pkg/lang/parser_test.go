@@ -30,12 +30,12 @@ func TestParser_SimpleMain(t *testing.T) {
 
 	err := parser.Run()
 	if err != nil {
-		t.Errorf("did not expect error %s", err)
+		t.Fatalf("did not expect error %s", err)
 	}
 
 	deps := parser.Deps()
 	if len(deps) != 2 {
-		t.Errorf("wanted 2 deps, got %d", len(deps))
+		t.Fatalf("wanted 2 deps, got %d", len(deps))
 	}
 
 	dep := pluckDep("all", deps)
@@ -94,6 +94,10 @@ func TestParser_SimpleMain(t *testing.T) {
 
 	if len(dep.MeetCommands) != 0 {
 		t.Errorf("wanted Dep 'foo' to have 0 'meet' command; got %d", len(dep.MeetCommands))
+	}
+
+	if !dep.Enable {
+		t.Error("wanted enable value", true, "got", dep.Enable)
 	}
 }
 
