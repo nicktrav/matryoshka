@@ -1,39 +1,41 @@
-package main
+package print
 
 import (
-	"flag"
+	"errors"
 	"fmt"
 	"log"
-	"os"
+
+	"github.com/spf13/cobra"
 
 	"github.com/nicktrav/matryoshka/pkg/graph"
 	"github.com/nicktrav/matryoshka/pkg/lang"
 )
 
+var (
+	dir     string
+	rootDep string
+)
+
+// NewCommand returns a new command for the printing dep graph.
+func NewCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "print",
+		Short: "Print the dep tree",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return run()
+		},
+	}
+
+	cmd.Flags().StringVar(&dir, "dir", "", "Directory of deps")
+	cmd.Flags().StringVar(&rootDep, "root", "", "Root of the dependency graph")
+
+	return cmd
+}
+
 // Print a minimal set of metadata about each dependency in a given directory.
-//
-// Usage of ./print:
-//
-//  -dir string (required)
-//        the directory of files to parse
-//  -no-color
-//        disable color in output
-//  -start string
-//        the dependency to start from (default "all")
-//
-
-func main() {
-	var dir, start string
-	var disableColor bool
-	flag.StringVar(&dir, "dir", "", "the directory of files to parse")
-
-	flag.StringVar(&start, "start", "all", "the dependency to start from")
-	flag.BoolVar(&disableColor, "no-color", false, "disable color in output")
-	flag.Parse()
-
+func run() error {
 	if dir == "" {
-		fmt.Println("-dir is a required argument")
-		os.Exit(1)
+		return errors.New("dir is a required argument")
 	}
 
 	parser := lang.NewParser(dir)
@@ -50,6 +52,8 @@ func main() {
 	for i, dep := range depGraph.Deps() {
 		fmt.Printf("\t%3d: %s -> %s\n", i, dep.Name, getDeps(dep))
 	}
+
+	return nil
 }
 
 // getDeps returns a slice of names for each of the given Dependency's own
