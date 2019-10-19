@@ -7,6 +7,7 @@ import (
 
 	"github.com/nicktrav/matryoshka/cmd/apply"
 	"github.com/nicktrav/matryoshka/cmd/print"
+	"github.com/nicktrav/matryoshka/cmd/version"
 )
 
 const commandName = "matryoshka"
@@ -28,6 +29,7 @@ func newCommand(args []string) *cobra.Command {
 	rootCmd.SetArgs(args)
 	rootCmd.AddCommand(print.NewCommand())
 	rootCmd.AddCommand(apply.NewCommand())
+	rootCmd.AddCommand(version.NewCommand())
 
 	return rootCmd
 }
